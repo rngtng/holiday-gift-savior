@@ -7,9 +7,11 @@ WORKDIR /app
 # Copy the requirements file into the container
 COPY requirements.txt .
 
-# Install any needed packages specified in requirements.txt
-# Use --no-cache-dir to minimize image size
-RUN pip install --no-cache-dir -r requirements.txt
+# Install uv for faster dependency resolution
+RUN pip install --upgrade pip uv
+
+# Install Python dependencies using uv (much faster than pip)
+RUN uv pip install --system --no-cache -r requirements.txt
 
 # Copy the rest of the application source code into the container
 COPY . .
