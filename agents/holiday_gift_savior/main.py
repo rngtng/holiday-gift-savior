@@ -9,8 +9,8 @@ from adk.tools import GoogleSearchTool # Placeholder for ADK built-in tool
 
 # --- Imports for project-specific components (assumed to be in the same directory) ---
 # NOTE: In a real ADK environment, these would be accessible via the project structure.
-from data_models import RecipientProfile, GiftIdea 
-from custom_tools import BudgetTools
+from agents.holiday_gift_savior.data_models import RecipientProfile, GiftIdea 
+from agents.holiday_gift_savior.custom_tools import BudgetTools
 
 # --- Configuration ---
 MODEL_NAME = "gemini-2.5-flash-preview-09-2025"
@@ -119,8 +119,10 @@ class HGSConciergeAgent(LlmAgent):
 
 # --- 4. Main ADK Application Setup ---
 
-async def main():
-    """Initializes and simulates the ADK application runtime."""
+# --- 4. Main ADK Application Setup ---
+
+def create_agent():
+    """Initializes and returns the ADK agent."""
     session_service = InMemorySessionService()
     
     # Initialize Mock Memory Bank and Pre-load Use Case data
@@ -147,7 +149,12 @@ async def main():
         session_service=session_service,
     )
     router_agent = HGSConciergeAgent(router_config, memory_bank=memory_bank)
+    return router_agent
 
+# Create the agent instance for ADK to load
+agent = create_agent()
+
+async def main():
     print("\n--- Holiday Gift Savior (HGS) Initialized & Ready to Save the Holidays ---")
     print(f"System Model: {MODEL_NAME}")
     print("Features ready: Multi-Agent System (Sequential & Parallel), Custom Tool ('Santa's Secret Budget Tool'), Memory.")
@@ -157,6 +164,10 @@ async def main():
 
     # In a real ADK runtime, the flow would now execute:
     # Router (Loads Memory) -> Collector (Structures Briefs) -> Parallel Research (Finds Ideas) -> Aggregator (Custom Tool Check & Deliver)
+    
+    # For simulation purposes, we might want to run the agent here if needed, 
+    # but for ADK web, we just need the agent instance.
+    pass
 
 if __name__ == '__main__':
     asyncio.run(main())

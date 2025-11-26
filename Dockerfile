@@ -20,6 +20,9 @@ COPY . .
 # NOTE: This must be provided when running the container (e.g., via -e GEMINI_API_KEY=...)
 ENV GEMINI_API_KEY=""
 
+# Expose port 3000 for ADK Web UI
+EXPOSE 3011
+
 # Command to run the application when the container starts
-# We run the main async function in main.py
-CMD ["python", "main.py"]
+# We run adk web to serve the agent
+CMD ["adk", "web", "--host", "0.0.0.0", "--port", "3011", "."]

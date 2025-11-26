@@ -1,0 +1,14 @@
+# https://taskfile.dev
+
+version: '3'
+
+dotenv: ['.env']
+
+tasks:
+  build:
+    cmds:
+      - docker build -t hgs-adk-web .
+
+  run:
+    cmds:
+      - docker run -p 3011:3011 -e GEMINI_API_KEY=$GEMINI_API_KEY hgs-adk-web
