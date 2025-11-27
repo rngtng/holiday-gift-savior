@@ -92,33 +92,5 @@ USER_PROFILES_DB = {
             past_successful_gifts=["Cast Iron Skillet"],
             disliked_categories=["Electronics", "Candles"]
         )
-    ],
-
-    # Extended family use case - grandparents and relatives
-    "user_martinez_555": [
-        RecipientProfile(
-            recipient_name="Grandma",
-            persistent_interests=["Knitting", "Crossword Puzzles", "Family Photos"],
-            past_successful_gifts=["Digital Photo Frame"],
-            disliked_categories=["Electronics (complex)", "Loud Items"]
-        ),
-        RecipientProfile(
-            recipient_name="Grandpa",
-            persistent_interests=["Woodworking", "History", "Classic Cars"],
-            past_successful_gifts=["Tool Set"],
-            disliked_categories=["Technology", "Modern Art"]
-        ),
-        RecipientProfile(
-            recipient_name="Aunt Mary",
-            persistent_interests=["Wine", "Cooking", "Travel"],
-            past_successful_gifts=["Wine Aerator"],
-            disliked_categories=["Sweet Desserts", "Romance Novels"]
-        ),
-        RecipientProfile(
-            recipient_name="Uncle Bob",
-            persistent_interests=["Golf", "BBQ", "Sports"],
-            past_successful_gifts=["Golf Balls"],
-            disliked_categories=["Books", "Clothing"]
-        )
     ]
 }

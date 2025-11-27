@@ -8,7 +8,12 @@ Holiday Gift Savior (HGS) is a multi-agent system built with Google's Agent Deve
 
 ## Development Commands
 
+- make sure to use `uv` to manage all dependencies
+- use `uv` to run python files
+- always use `uv` to run the server do not use pip directly
+
 ### Local Development (requires Python 3.11+ and uv)
+
 ```bash
 # Install uv package manager
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -19,8 +24,10 @@ uv pip install -r requirements.txt
 # Set API key
 export GEMINI_API_KEY="your_api_key_here"
 
-# Run the agent locally (simulation mode)
-uv run agents/holiday_gift_savior/agent.py
+# View available user profiles
+uv run view_users.py
+
+# Note: The agent runs via Docker/ADK Web UI (see below)
 ```
 
 ### Docker Development (recommended)
@@ -31,9 +38,9 @@ task run      # Build and run the container
 task dev      # Build and open interactive shell
 
 # Using Docker directly
-docker build -t holiday-gift-savoir .
-docker run -p 3011:3011 -e GEMINI_API_KEY="your_key" holiday-gift-savoir
-docker run -it -p 3011:3011 -e GEMINI_API_KEY="your_key" -v .:/app holiday-gift-savoir bash
+docker build -t holiday-gift-savior .
+docker run -p 3011:3011 -e GEMINI_API_KEY="your_key" holiday-gift-savior
+docker run -it -p 3011:3011 -e GEMINI_API_KEY="your_key" -v .:/app holiday-gift-savior bash
 ```
 
 ### ADK Web Interface
@@ -120,7 +127,7 @@ Core dependencies in [requirements.txt](requirements.txt):
 The agent can be deployed to Google Cloud Run:
 ```bash
 # Tag and push to GCR
-docker tag holiday-gift-savoir:latest gcr.io/YOUR_PROJECT_ID/hgs-agent:latest
+docker tag holiday-gift-savior:latest gcr.io/YOUR_PROJECT_ID/hgs-agent:latest
 docker push gcr.io/YOUR_PROJECT_ID/hgs-agent:latest
 
 # Deploy to Cloud Run

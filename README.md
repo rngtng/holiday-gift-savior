@@ -31,14 +31,7 @@ For quick testing and debugging outside of a container:
    export GEMINI_API_KEY="YOUR_API_KEY_HERE"
    ```
 
-4. **Run the Agent (Simulation Mode):**
-   ```bash
-   uv run run_agent.py
-   ```
-
-   This displays system information and example queries. The actual agent runs via the ADK Web UI.
-
-5. **View Available User Profiles:**
+4. **View Available User Profiles:**
 
    ```bash
    uv run view_users.py
@@ -46,18 +39,9 @@ For quick testing and debugging outside of a container:
 
    This displays all demo users and their recipient profiles.
 
-6. **Switch Between Users:**
+   Available user IDs: `family_smith_123`, `user_johnson_456`, `corporate_hr_789`, `student_alex_321`
 
-   The agent automatically loads user profiles based on the `userId` parameter from the ADK Web UI session.
-
-   For local testing without the web UI, set the `CURRENT_USER_ID` environment variable:
-
-   ```bash
-   export CURRENT_USER_ID="user_johnson_456"
-   uv run run_agent.py
-   ```
-
-   Available user IDs: `family_smith_123`, `user_johnson_456`, `corporate_hr_789`, `student_alex_321`, `user_martinez_555`
+   **Note:** The agent runs via the ADK Web UI (see Containerized Execution section below) and automatically loads user profiles based on the `userId` parameter in the session URL.
 
 ### **2\. Containerized Execution with ADK Web UI (Recommended)**
 
@@ -81,13 +65,13 @@ task dev
 1. **Build the Docker Image:**
 
    ```bash
-   docker build -t holiday-gift-savoir .
+   docker build -t holiday-gift-savior .
    ```
 
 2. **Run the Container:**
 
    ```bash
-   docker run -p 3011:3011 -e GEMINI_API_KEY="YOUR_API_KEY_HERE" holiday-gift-savoir
+   docker run -p 3011:3011 -e GEMINI_API_KEY="YOUR_API_KEY_HERE" holiday-gift-savior
    ```
 
 3. **Access the Web UI:**
