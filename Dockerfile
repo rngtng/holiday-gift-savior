@@ -20,7 +20,7 @@ COPY . .
 # NOTE: This must be provided when running the container (e.g., via -e GEMINI_API_KEY=...)
 ENV GEMINI_API_KEY=""
 
-# Expose port 3000 for ADK Web UI
+# Expose port 3011 for ADK Web UI
 EXPOSE 3011
 
 # Command to run the application when the container starts

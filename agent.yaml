@@ -1,3 +1,0 @@
-name: holiday_gift_savior
-version: 0.0.1
-entry_point: agents.holiday_gift_savior.main:agent

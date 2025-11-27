@@ -1,4 +1,5 @@
 google-adk
-google-generativeai
 pydantic
 asyncio
+google-genai
+google-adk[eval]
