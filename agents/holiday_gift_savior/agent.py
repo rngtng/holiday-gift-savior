@@ -1,7 +1,6 @@
 """Holiday Gift Savior - Multi-agent gift recommendation system."""
 
 from google.adk.agents import LlmAgent, SequentialAgent, ParallelAgent
-from google.adk.memory import InMemoryMemoryService
 from google.adk.tools import google_search
 
 from .data_models import RecipientProfile
@@ -25,9 +24,14 @@ def create_collector_agent(**kwargs) -> LlmAgent:
     """
     return LlmAgent(
         instruction=(
-            "You are the Gift Briefing Specialist. Your input is the user's gift request "
-            "and recipient profiles from memory. Create structured search briefs as a JSON array "
-            "where each object contains: 'recipient_name', 'max_budget', and 'search_query'."
+            "You are the Gift Briefing Specialist. For each gift request:\n"
+            "1. Query MemoryBank to retrieve the recipient's profile (interests, past gifts, dislikes)\n"
+            "2. Combine the user's budget and preferences with the stored memory profile\n"
+            "3. Create structured search briefs as a JSON array where each object contains:\n"
+            "   - 'recipient_name': The person's name\n"
+            "   - 'max_budget': Budget from user's request\n"
+            "   - 'search_query': Synthesized query using interests from memory + user preferences\n\n"
+            "IMPORTANT: Use ACTUAL data from MemoryBank, not hallucinated information."
         ),
         **kwargs
     )
@@ -52,7 +56,7 @@ def create_researcher_agent(**kwargs) -> LlmAgent:
     )
 
 
-def create_aggregator_agent(memory_bank: InMemoryMemoryService, **kwargs) -> LlmAgent:
+def create_aggregator_agent(**kwargs) -> LlmAgent:
     """
     Creates the Aggregator Agent that validates and delivers final recommendations.
 
@@ -66,9 +70,10 @@ def create_aggregator_agent(memory_bank: InMemoryMemoryService, **kwargs) -> Llm
             "You are the Final Reviewer. Process the gift ideas from researchers:\n"
             "1. Use 'check_budget_compliance' tool to validate each gift price vs budget\n"
             "2. If a gift fails budget check, suggest a cheaper alternative\n"
-            "3. Filter out items marked as 'socks' or 'boring' in memory\n"
-            "4. Format approved gifts as a clear Markdown table\n"
-            "5. Update MemoryBank with any new preferences learned from the conversation"
+            "3. Check the recipient profiles (available in context) for disliked_categories\n"
+            "4. Filter out items that match disliked categories from the profiles\n"
+            "5. Format approved gifts as a clear Markdown table\n"
+            "6. Note any new preferences learned from the conversation"
         ),
         tools=[check_budget_compliance],
         **kwargs
@@ -78,7 +83,7 @@ def create_aggregator_agent(memory_bank: InMemoryMemoryService, **kwargs) -> Llm
 # Workflow Orchestration
 # ============================================================================
 
-def create_gift_planning_workflow(memory_bank: InMemoryMemoryService, **kwargs) -> SequentialAgent:
+def create_gift_planning_workflow(**kwargs) -> SequentialAgent:
     """
     Creates the main sequential workflow: Collection -> Parallel Research -> Aggregation.
 
@@ -88,7 +93,6 @@ def create_gift_planning_workflow(memory_bank: InMemoryMemoryService, **kwargs) 
         3. Aggregator validates budgets and formats final output
 
     Args:
-        memory_bank: Memory service for storing recipient profiles
         **kwargs: Additional agent configuration
 
     Returns:
@@ -104,13 +108,16 @@ def create_gift_planning_workflow(memory_bank: InMemoryMemoryService, **kwargs) 
     parallel_research = ParallelAgent(
         name="ParallelResearch",
         sub_agents=[
-            create_researcher_agent(name=f"Researcher_{i}", model=MODEL_NAME)
+            create_researcher_agent(
+                name=f"Researcher_{i}",
+                model=MODEL_NAME
+            )
             for i in range(NUM_PARALLEL_RESEARCHERS)
         ]
     )
 
     # Stage 3: Aggregate, validate, and deliver results
-    aggregator = create_aggregator_agent(memory_bank=memory_bank)
+    aggregator = create_aggregator_agent()
 
     return SequentialAgent(
         name="GiftPlanningWorkflow",
@@ -122,7 +129,7 @@ def create_gift_planning_workflow(memory_bank: InMemoryMemoryService, **kwargs) 
 # Main Entry Point Agent
 # ============================================================================
 
-def create_concierge_agent(memory_bank: InMemoryMemoryService, **kwargs) -> LlmAgent:
+def create_concierge_agent(**kwargs) -> LlmAgent:
     """
     Creates the top-level Concierge Agent that routes requests and manages memory.
 
@@ -130,13 +137,12 @@ def create_concierge_agent(memory_bank: InMemoryMemoryService, **kwargs) -> LlmA
     memory and delegates gift planning to the workflow sub-agent.
 
     Args:
-        memory_bank: Memory service for loading recipient profiles
         **kwargs: Additional agent configuration
 
     Returns:
         LlmAgent configured as the system's main router
     """
-    gift_workflow = create_gift_planning_workflow(memory_bank=memory_bank)
+    gift_workflow = create_gift_planning_workflow()
 
     return LlmAgent(
         name="HGSConciergeAgent",
@@ -144,26 +150,31 @@ def create_concierge_agent(memory_bank: InMemoryMemoryService, **kwargs) -> LlmA
         instruction=(
             "You are the Holiday Gift Savior Concierge - a warm, helpful assistant specializing in gift recommendations.\n\n"
 
-            "FIRST INTERACTION (if this is the start of the conversation):\n"
-            "1. Greet the user warmly and introduce yourself\n"
-            "2. Load recipient profiles from the MemoryBank for the current user\n"
-            "3. Summarize what you know in a friendly way:\n"
-            "   - Number of recipients you have profiles for\n"
-            "   - Brief mention of each person (name and 2-3 key interests)\n"
-            "   - Any important preferences or dislikes to remember\n"
-            "4. Ask how you can help them find the perfect gifts today\n\n"
+            "RECIPIENT PROFILES:\n"
+            "At the beginning of this instruction, you have been provided with detailed recipient profiles.\n"
+            "These profiles contain REAL data including names, interests, past gifts, and dislikes.\n"
+            "You MUST use this actual profile data - do NOT make up or hallucinate information.\n\n"
 
-            "Example greeting:\n"
-            "\"Ho Ho Ho! I'm your Holiday Gift Savior 🎁, here to help you find perfect gifts.\n\n"
-            "I have profiles for 2 people:\n"
-            "- Dave (loves Coffee and Wine, but please no Socks or Ties)\n"
-            "- Petra (enjoys Gardening and Reading, avoids Heavy Jewelry)\n\n"
+            "FIRST INTERACTION (at conversation start):\n"
+            "1. Greet the user warmly and introduce yourself as their Holiday Gift Savior 🎁\n"
+            "2. Review the recipient profiles provided above in your context\n"
+            "3. Summarize what you know about each person:\n"
+            "   - Total number of recipients\n"
+            "   - Each person's name with 2-3 key interests\n"
+            "   - Any important dislikes to avoid\n"
+            "4. Ask who they're shopping for and their budget\n\n"
+
+            "Example greeting format:\n"
+            "\"Welcome! 🎁 I'm your Holiday Gift Savior.\n\n"
+            "I have profiles for [N] people:\n"
+            "- [Name] (loves [Interest1], [Interest2], but avoid [Dislike1])\n"
+            "- [Name] (enjoys [Interest1], [Interest2], no [Dislike1])\n\n"
             "Who are you shopping for today, and what's your budget?\"\n\n"
 
             "FOR GIFT REQUESTS:\n"
             "- Acknowledge the request positively\n"
-            "- Delegate to the 'GiftPlanningWorkflow' sub-agent to find recommendations\n"
-            "- The workflow will handle research and budget validation\n\n"
+            "- Delegate to the 'GiftPlanningWorkflow' sub-agent\n"
+            "- The workflow will use the profile data for personalized recommendations\n\n"
 
             "FOR OTHER QUESTIONS:\n"
             "- Politely redirect: 'My sleigh bells are only calibrated for gift requests! How can I help you find the perfect gift today?'"
@@ -176,9 +187,9 @@ def create_concierge_agent(memory_bank: InMemoryMemoryService, **kwargs) -> LlmA
 # Application Initialization
 # ============================================================================
 
-def _load_sample_profiles(memory_bank: InMemoryMemoryService) -> None:
-    """Load sample recipient profiles into memory for demo purposes."""
-    profiles = [
+def _get_sample_profiles() -> list[RecipientProfile]:
+    """Get sample recipient profiles for demo purposes."""
+    return [
         RecipientProfile(
             recipient_name="Dad",
             persistent_interests=["Coffee", "Gadgets"],
@@ -199,10 +210,19 @@ def _load_sample_profiles(memory_bank: InMemoryMemoryService) -> None:
         )
     ]
 
-    print(f"Loading {len(profiles)} recipient profiles for user {MOCK_USER_ID}")
+
+def _format_profiles_for_context(profiles: list[RecipientProfile]) -> str:
+    """Format recipient profiles as a context string for the agent."""
+    context = f"## Recipient Profiles (User: {MOCK_USER_ID})\n\n"
     for profile in profiles:
-        interests = ", ".join(profile.persistent_interests)
-        print(f"  - {profile.recipient_name}: {interests}")
+        context += f"### {profile.recipient_name}\n"
+        context += f"- **Interests**: {', '.join(profile.persistent_interests)}\n"
+        if profile.past_successful_gifts:
+            context += f"- **Past successful gifts**: {', '.join(profile.past_successful_gifts)}\n"
+        if profile.disliked_categories:
+            context += f"- **Dislikes/Avoid**: {', '.join(profile.disliked_categories)}\n"
+        context += "\n"
+    return context
 
 
 def create_agent() -> LlmAgent:
@@ -215,10 +235,27 @@ def create_agent() -> LlmAgent:
     Returns:
         The root LlmAgent (concierge) ready to handle user requests
     """
-    memory_bank = InMemoryMemoryService()
-    _load_sample_profiles(memory_bank)
+    # Get sample profiles and log them
+    profiles = _get_sample_profiles()
+    print(f"Loading {len(profiles)} recipient profiles for user {MOCK_USER_ID}")
+    for profile in profiles:
+        interests = ", ".join(profile.persistent_interests)
+        print(f"  - {profile.recipient_name}: {interests}")
 
-    return create_concierge_agent(memory_bank=memory_bank)
+    # Format profiles as context for the agent
+    profiles_context = _format_profiles_for_context(profiles)
+
+    # Create the concierge agent
+    agent = create_concierge_agent()
+
+    # Inject the profiles context into the agent's instruction
+    # This ensures the agent has the actual profile data from the start
+    agent.instruction = (
+        f"{profiles_context}\n\n"
+        f"{agent.instruction}"
+    )
+
+    return agent
 
 
 # Root agent instance - ADK framework expects this variable
