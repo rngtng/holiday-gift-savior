@@ -3,13 +3,14 @@
 from google.adk.agents import LlmAgent, SequentialAgent, ParallelAgent
 from google.adk.tools import google_search
 
-from .data_models import RecipientProfile
-from .custom_tools import check_budget_compliance
+from .custom_tools import check_budget_compliance, get_recipient_profiles
 
 # Configuration
 MODEL_NAME = "gemini-2.5-flash-preview-09-2025"
-MOCK_USER_ID = "family_smith_123"
 NUM_PARALLEL_RESEARCHERS = 3
+
+# Default user for demo purposes (can be overridden via CURRENT_USER_ID environment variable)
+DEFAULT_USER_ID = "family_smith_123"
 
 # ============================================================================
 # Agent Factory Functions
@@ -133,8 +134,8 @@ def create_concierge_agent(**kwargs) -> LlmAgent:
     """
     Creates the top-level Concierge Agent that routes requests and manages memory.
 
-    This is the main entry point for the system. It loads recipient profiles from
-    memory and delegates gift planning to the workflow sub-agent.
+    This is the main entry point for the system. It dynamically loads recipient profiles
+    based on the user_id from the session and delegates gift planning to the workflow sub-agent.
 
     Args:
         **kwargs: Additional agent configuration
@@ -150,15 +151,15 @@ def create_concierge_agent(**kwargs) -> LlmAgent:
         instruction=(
             "You are the Holiday Gift Savior Concierge - a warm, helpful assistant specializing in gift recommendations.\n\n"
 
-            "RECIPIENT PROFILES:\n"
-            "At the beginning of this instruction, you have been provided with detailed recipient profiles.\n"
-            "These profiles contain REAL data including names, interests, past gifts, and dislikes.\n"
-            "You MUST use this actual profile data - do NOT make up or hallucinate information.\n\n"
+            "IMPORTANT - LOAD USER PROFILES:\n"
+            "At the START of every conversation, you MUST call the 'get_recipient_profiles' tool to load the user's recipient data.\n"
+            "Pass an empty string or the user's ID to load their personalized profiles.\n"
+            "Do NOT proceed with recommendations until you have loaded the profiles.\n\n"
 
             "FIRST INTERACTION (at conversation start):\n"
-            "1. Greet the user warmly and introduce yourself as their Holiday Gift Savior 🎁\n"
-            "2. Review the recipient profiles provided above in your context\n"
-            "3. Summarize what you know about each person:\n"
+            "1. Call 'get_recipient_profiles' tool to load user data\n"
+            "2. Greet the user warmly and introduce yourself as their Holiday Gift Savior 🎁\n"
+            "3. Summarize the loaded recipient profiles:\n"
             "   - Total number of recipients\n"
             "   - Each person's name with 2-3 key interests\n"
             "   - Any important dislikes to avoid\n"
@@ -174,88 +175,28 @@ def create_concierge_agent(**kwargs) -> LlmAgent:
             "FOR GIFT REQUESTS:\n"
             "- Acknowledge the request positively\n"
             "- Delegate to the 'GiftPlanningWorkflow' sub-agent\n"
-            "- The workflow will use the profile data for personalized recommendations\n\n"
+            "- The workflow will use the loaded profile data for personalized recommendations\n\n"
 
             "FOR OTHER QUESTIONS:\n"
             "- Politely redirect: 'My sleigh bells are only calibrated for gift requests! How can I help you find the perfect gift today?'"
         ),
+        tools=[get_recipient_profiles],
         sub_agents=[gift_workflow],
         **kwargs
     )
-
-# ============================================================================
-# Application Initialization
-# ============================================================================
-
-def _get_sample_profiles() -> list[RecipientProfile]:
-    """Get sample recipient profiles for demo purposes."""
-    return [
-        RecipientProfile(
-            recipient_name="Dad",
-            persistent_interests=["Coffee", "Gadgets"],
-            past_successful_gifts=["Smart Speaker"],
-            disliked_categories=["Socks", "Tie"]
-        ),
-        RecipientProfile(
-            recipient_name="Mom",
-            persistent_interests=["Gardening", "Reading"],
-            past_successful_gifts=[],
-            disliked_categories=["Heavy Jewelry", "Anything Red"]
-        ),
-        RecipientProfile(
-            recipient_name="Brother",
-            persistent_interests=["Baking", "Sci-Fi"],
-            past_successful_gifts=[],
-            disliked_categories=["Video Games"]
-        )
-    ]
-
-
-def _format_profiles_for_context(profiles: list[RecipientProfile]) -> str:
-    """Format recipient profiles as a context string for the agent."""
-    context = f"## Recipient Profiles (User: {MOCK_USER_ID})\n\n"
-    for profile in profiles:
-        context += f"### {profile.recipient_name}\n"
-        context += f"- **Interests**: {', '.join(profile.persistent_interests)}\n"
-        if profile.past_successful_gifts:
-            context += f"- **Past successful gifts**: {', '.join(profile.past_successful_gifts)}\n"
-        if profile.disliked_categories:
-            context += f"- **Dislikes/Avoid**: {', '.join(profile.disliked_categories)}\n"
-        context += "\n"
-    return context
-
 
 def create_agent() -> LlmAgent:
     """
     Initializes and returns the root agent for the ADK system.
 
-    This is the entry point called by the ADK framework. It sets up the memory
-    service with sample data and returns the configured concierge agent.
+    This is the entry point called by the ADK framework.
+    The agent will dynamically load user profiles at runtime using the get_recipient_profiles tool.
 
     Returns:
         The root LlmAgent (concierge) ready to handle user requests
     """
-    # Get sample profiles and log them
-    profiles = _get_sample_profiles()
-    print(f"Loading {len(profiles)} recipient profiles for user {MOCK_USER_ID}")
-    for profile in profiles:
-        interests = ", ".join(profile.persistent_interests)
-        print(f"  - {profile.recipient_name}: {interests}")
-
-    # Format profiles as context for the agent
-    profiles_context = _format_profiles_for_context(profiles)
-
-    # Create the concierge agent
-    agent = create_concierge_agent()
-
-    # Inject the profiles context into the agent's instruction
-    # This ensures the agent has the actual profile data from the start
-    agent.instruction = (
-        f"{profiles_context}\n\n"
-        f"{agent.instruction}"
-    )
-
-    return agent
+    print("\n🎁 Initializing Holiday Gift Savior (profiles will be loaded dynamically per session)")
+    return create_concierge_agent()
 
 
 # Root agent instance - ADK framework expects this variable

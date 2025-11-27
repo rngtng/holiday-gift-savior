@@ -38,6 +38,27 @@ For quick testing and debugging outside of a container:
 
    This displays system information and example queries. The actual agent runs via the ADK Web UI.
 
+5. **View Available User Profiles:**
+
+   ```bash
+   uv run view_users.py
+   ```
+
+   This displays all demo users and their recipient profiles.
+
+6. **Switch Between Users:**
+
+   The agent automatically loads user profiles based on the `userId` parameter from the ADK Web UI session.
+
+   For local testing without the web UI, set the `CURRENT_USER_ID` environment variable:
+
+   ```bash
+   export CURRENT_USER_ID="user_johnson_456"
+   uv run run_agent.py
+   ```
+
+   Available user IDs: `family_smith_123`, `user_johnson_456`, `corporate_hr_789`, `student_alex_321`, `user_martinez_555`
+
 ### **2\. Containerized Execution with ADK Web UI (Recommended)**
 
 This method packages the application with all dependencies and serves the agent via ADK's web interface.
@@ -60,13 +81,13 @@ task dev
 1. **Build the Docker Image:**
 
    ```bash
-   docker build -t hgs-adk-web .
+   docker build -t holiday-gift-savoir .
    ```
 
 2. **Run the Container:**
 
    ```bash
-   docker run -p 3011:3011 -e GEMINI_API_KEY="YOUR_API_KEY_HERE" hgs-adk-web
+   docker run -p 3011:3011 -e GEMINI_API_KEY="YOUR_API_KEY_HERE" holiday-gift-savoir
    ```
 
 3. **Access the Web UI:**
@@ -74,6 +95,8 @@ task dev
    Open your browser to [http://localhost:3011](http://localhost:3011)
 
    The ADK Web UI provides an interactive interface to chat with the agent and see the multi-agent workflow in action.
+
+   **User Profile Loading:** The agent automatically loads recipient profiles based on the `userId` parameter in the session URL (e.g., `?userId=user_johnson_456`). The agent will call the `get_recipient_profiles` tool at the start of each conversation to load personalized data.
 
 ## **Deployment to Google Cloud (GCP)**
 

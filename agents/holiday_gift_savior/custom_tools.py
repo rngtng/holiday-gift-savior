@@ -1,7 +1,9 @@
 """Custom tools for the Holiday Gift Savior system."""
 
 import json
+import os
 from google.adk.tools import FunctionTool
+from .sample_data import USER_PROFILES_DB
 
 
 @FunctionTool
@@ -52,4 +54,47 @@ def check_budget_compliance(
         "currency": currency,
         "budget_difference": difference,
         "compliance_message": message
+    })
+
+
+@FunctionTool
+def get_recipient_profiles(user_id: str = "") -> str:
+    """
+    Retrieve recipient profiles for the current user from the profile database.
+
+    This tool loads personalized recipient profiles including interests,
+    past successful gifts, and dislikes for each person the user shops for.
+
+    Args:
+        user_id: Optional user ID. If not provided, uses DEFAULT_USER_ID from environment.
+
+    Returns:
+        JSON string with list of recipient profiles for the user.
+    """
+    # Use provided user_id, fall back to environment variable
+    if not user_id:
+        user_id = os.getenv("CURRENT_USER_ID", "family_smith_123")
+
+    profiles = USER_PROFILES_DB.get(user_id, [])
+
+    if not profiles:
+        return json.dumps({
+            "error": f"No profiles found for user_id: {user_id}",
+            "available_users": list(USER_PROFILES_DB.keys())
+        })
+
+    # Convert profiles to serializable format
+    profiles_data = []
+    for profile in profiles:
+        profiles_data.append({
+            "recipient_name": profile.recipient_name,
+            "persistent_interests": profile.persistent_interests,
+            "past_successful_gifts": profile.past_successful_gifts,
+            "disliked_categories": profile.disliked_categories
+        })
+
+    return json.dumps({
+        "user_id": user_id,
+        "total_recipients": len(profiles),
+        "profiles": profiles_data
     })

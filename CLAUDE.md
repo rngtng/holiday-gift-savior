@@ -31,9 +31,9 @@ task run      # Build and run the container
 task dev      # Build and open interactive shell
 
 # Using Docker directly
-docker build -t hgs-adk-web .
-docker run -p 3011:3011 -e GEMINI_API_KEY="your_key" hgs-adk-web
-docker run -it -p 3011:3011 -e GEMINI_API_KEY="your_key" -v .:/app hgs-adk-web bash
+docker build -t holiday-gift-savoir .
+docker run -p 3011:3011 -e GEMINI_API_KEY="your_key" holiday-gift-savoir
+docker run -it -p 3011:3011 -e GEMINI_API_KEY="your_key" -v .:/app holiday-gift-savoir bash
 ```
 
 ### ADK Web Interface
@@ -120,7 +120,7 @@ Core dependencies in [requirements.txt](requirements.txt):
 The agent can be deployed to Google Cloud Run:
 ```bash
 # Tag and push to GCR
-docker tag hgs-adk-web:latest gcr.io/YOUR_PROJECT_ID/hgs-agent:latest
+docker tag holiday-gift-savoir:latest gcr.io/YOUR_PROJECT_ID/hgs-agent:latest
 docker push gcr.io/YOUR_PROJECT_ID/hgs-agent:latest
 
 # Deploy to Cloud Run
