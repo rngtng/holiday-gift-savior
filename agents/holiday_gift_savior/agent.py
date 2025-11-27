@@ -4,6 +4,7 @@ from google.adk.agents import LlmAgent, SequentialAgent, ParallelAgent
 from google.adk.tools import google_search
 
 from .custom_tools import check_budget_compliance, get_recipient_profiles
+from .error_handling import GracefulErrorAgent
 
 # Configuration
 MODEL_NAME = "gemini-2.5-flash-preview-09-2025"
@@ -130,22 +131,24 @@ def create_gift_planning_workflow(**kwargs) -> SequentialAgent:
 # Main Entry Point Agent
 # ============================================================================
 
-def create_concierge_agent(**kwargs) -> LlmAgent:
+def create_concierge_agent(**kwargs) -> GracefulErrorAgent:
     """
     Creates the top-level Concierge Agent that routes requests and manages memory.
 
     This is the main entry point for the system. It dynamically loads recipient profiles
     based on the user_id from the session and delegates gift planning to the workflow sub-agent.
 
+    Uses GracefulErrorAgent to provide user-friendly messages when the model is overloaded.
+
     Args:
         **kwargs: Additional agent configuration
 
     Returns:
-        LlmAgent configured as the system's main router
+        GracefulErrorAgent configured as the system's main router
     """
     gift_workflow = create_gift_planning_workflow()
 
-    return LlmAgent(
+    return GracefulErrorAgent(
         name="HGSConciergeAgent",
         model=MODEL_NAME,
         instruction=(
@@ -185,7 +188,7 @@ def create_concierge_agent(**kwargs) -> LlmAgent:
         **kwargs
     )
 
-def create_agent() -> LlmAgent:
+def create_agent() -> GracefulErrorAgent:
     """
     Initializes and returns the root agent for the ADK system.
 
@@ -193,7 +196,7 @@ def create_agent() -> LlmAgent:
     The agent will dynamically load user profiles at runtime using the get_recipient_profiles tool.
 
     Returns:
-        The root LlmAgent (concierge) ready to handle user requests
+        The root GracefulErrorAgent (concierge) ready to handle user requests with error handling
     """
     print("\n🎁 Initializing Holiday Gift Savior (profiles will be loaded dynamically per session)")
     return create_concierge_agent()
