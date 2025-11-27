@@ -10,7 +10,7 @@ from google.adk.tools import google_search, FunctionTool
 # --- Imports for project-specific components (assumed to be in the same directory) ---
 # NOTE: In a real ADK environment, these would be accessible via the project structure.
 from .data_models import RecipientProfile, GiftIdea
-from .custom_tools import BudgetTools
+from .custom_tools import check_budget_compliance
 
 # --- Configuration ---
 MODEL_NAME = "gemini-2.5-flash-preview-09-2025"
@@ -55,8 +55,6 @@ def create_aggregator_agent(memory_bank: InMemoryMemoryService, **kwargs):
     Factory function to create the aggregator agent that collects results from all parallel agents,
     validates the budget using the Custom Tool, formats the final output, and manages Long-Term Memory updates.
     """
-    budget_tools = BudgetTools()
-
     agent = LlmAgent(
         name="AggregatorAgent",
         model=MODEL_NAME,
@@ -68,7 +66,7 @@ def create_aggregator_agent(memory_bank: InMemoryMemoryService, **kwargs):
             "4. CRITICALLY: Explicitly filter out any gift ideas containing 'socks' or items noted as 'boring' in the memory. "
             "5. Finally, analyze the conversation for any new preferences and use the MemoryBank to persist them. Deliver the response with a celebratory tone!"
         ),
-        tools=[budget_tools],
+        tools=[check_budget_compliance],
         **kwargs
     )
 
