@@ -8,9 +8,9 @@ This document provides instructions for building, running, and deploying the HGS
 
 * [Python 3.11+](https://www.python.org/downloads/)
 * [uv](https://github.com/astral-sh/uv) (fast Python package installer)
-* [Docker Desktop](https://www.docker.com/products/docker-desktop) installed and running.
-* Your Gemini API Key (set as an environment variable).
-* The following files must be present in your project directory: main.py, custom\_tools.py, data\_models.py, requirements.txt, and Dockerfile.
+* [Docker Desktop](https://www.docker.com/products/docker-desktop) installed and running
+* [Task](https://taskfile.dev/) (optional, for simplified commands)
+* Your Gemini API Key (set as an environment variable)
 
 ### **1\. Local Setup (Without Docker)**
 
@@ -31,32 +31,49 @@ For quick testing and debugging outside of a container:
    export GEMINI_API_KEY="YOUR_API_KEY_HERE"
    ```
 
-4. **Run the Agent:**
+4. **Run the Agent (Simulation Mode):**
    ```bash
-   uv run main.py
+   uv run run_agent.py
    ```
 
-   *(Note: This runs the initialization block and simulates the orchestrated workflow.)*
+   This displays system information and example queries. The actual agent runs via the ADK Web UI.
 
-### **2\. Containerized Execution (Recommended)**
+### **2\. Containerized Execution with ADK Web UI (Recommended)**
 
-This method packages the application with all dependencies for guaranteed reproducibility.
+This method packages the application with all dependencies and serves the agent via ADK's web interface.
+
+#### **Using Task (Recommended):**
+
+```bash
+# Build the Docker image
+task build
+
+# Build and run the container
+task run
+
+# Build and open interactive shell for debugging
+task dev
+```
+
+#### **Using Docker directly:**
 
 1. **Build the Docker Image:**
-   From the root directory containing the required files:
+
    ```bash
-   docker build -t hgs-agent:latest .
+   docker build -t hgs-adk-web .
    ```
 
-   This command builds the image and tags it as hgs-agent:latest.
+2. **Run the Container:**
 
-2. **Run the Docker Container:**
-   You must pass your Gemini API Key as an environment variable when running the container.
    ```bash
-   docker run -e GEMINI_API_KEY="YOUR_API_KEY_HERE" hgs-agent:latest
+   docker run -p 3011:3011 -e GEMINI_API_KEY="YOUR_API_KEY_HERE" hgs-adk-web
    ```
 
-   The agent will initialize and print the simulated user query and the status of the orchestrated workflow.
+3. **Access the Web UI:**
+
+   Open your browser to [http://localhost:3011](http://localhost:3011)
+
+   The ADK Web UI provides an interactive interface to chat with the agent and see the multi-agent workflow in action.
 
 ## **Deployment to Google Cloud (GCP)**
 
