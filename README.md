@@ -109,7 +109,7 @@ Cloud Run is the ideal choice for deploying containerized ADK agents as serverle
    gcloud run deploy hgs-agent-service \
        --image gcr.io/YOUR_PROJECT_ID/hgs-agent:latest \
        --platform managed \
-       --region us-central1 \
+       --region europe-west4 \
        --allow-unauthenticated \
        --set-env-vars GEMINI_API_KEY="YOUR_API_KEY_HERE" \
        --max-instances 5 \

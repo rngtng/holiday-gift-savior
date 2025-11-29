@@ -76,7 +76,7 @@ This pattern allows ADK to properly configure and instantiate agents with shared
 
 ### Custom Tools
 
-The system includes one custom tool in [custom_tools.py](agents/holiday_gift_savior/custom_tools.py):
+The system includes one custom tool in [custom_tools.py](agent/custom_tools.py):
 - `check_budget_compliance()` - A `@FunctionTool` decorated function that validates gift prices against budgets with a 5% grace margin
 
 Custom tools must:
@@ -87,7 +87,7 @@ Custom tools must:
 
 ### Data Models
 
-[data_models.py](agents/holiday_gift_savior/data_models.py) defines two core schemas:
+[data_models.py](agent/data_models.py) defines two core schemas:
 - `RecipientProfile` - Long-term memory schema for persistent preferences (interests, past gifts, dislikes)
 - `GiftIdea` - Inter-agent communication schema for passing gift recommendations between agents
 
@@ -102,12 +102,12 @@ The system uses `InMemoryMemoryService` for long-term memory simulation. In prod
 
 The ADK expects a module-level `root_agent` variable:
 ```python
-# In agents/holiday_gift_savior/__init__.py
+# In agent/__init__.py
 from .agent import root_agent
 __all__ = ['root_agent']
 ```
 
-The `root_agent` is created via `create_agent()` in [agent.py](agents/holiday_gift_savior/agent.py), which initializes services and returns the configured concierge agent.
+The `root_agent` is created via `create_agent()` in [agent.py](agent/agent.py), which initializes services and returns the configured concierge agent.
 
 ## Configuration
 
@@ -134,7 +134,7 @@ docker push gcr.io/YOUR_PROJECT_ID/hgs-agent:latest
 gcloud run deploy hgs-agent-service \
     --image gcr.io/YOUR_PROJECT_ID/hgs-agent:latest \
     --platform managed \
-    --region us-central1 \
+    --region europe-west4 \
     --allow-unauthenticated \
     --set-env-vars GEMINI_API_KEY="your_key" \
     --max-instances 5 \

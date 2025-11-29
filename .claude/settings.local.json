@@ -5,7 +5,8 @@
       "Bash(tree:*)",
       "Bash(python3 -c \"import sys; sys.path.insert(0, ''.''); from agents.holiday_gift_savior.agent import root_agent; print(''Successfully imported root_agent:'', type(root_agent))\")",
       "Bash(docker run:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(uv run python3:*)"
     ],
     "deny": [],
     "ask": []

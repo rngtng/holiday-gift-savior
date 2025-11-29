@@ -2,9 +2,16 @@
 
 from google.adk.agents import LlmAgent, SequentialAgent, ParallelAgent
 from google.adk.tools import google_search
+import vertexai
+import os
 
 from .custom_tools import check_budget_compliance, get_recipient_profiles
 from .error_handling import GracefulErrorAgent
+
+vertexai.init(
+    project=os.environ["GOOGLE_CLOUD_PROJECT"],
+    location=os.environ["GOOGLE_CLOUD_LOCATION"],
+)
 
 # Configuration
 MODEL_NAME = "gemini-2.5-flash-preview-09-2025"
@@ -204,3 +211,7 @@ def create_agent() -> GracefulErrorAgent:
 
 # Root agent instance - ADK framework expects this variable
 root_agent = create_agent()
+
+from google.adk.apps.app import App
+
+app = App(root_agent=root_agent, name="app")

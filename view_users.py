@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Display all available users and their recipient profiles."""
 
-from agents.holiday_gift_savior.sample_data import USER_PROFILES_DB
+from agent.sample_data import USER_PROFILES_DB
 
 
 def main():

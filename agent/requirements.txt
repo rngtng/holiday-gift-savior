@@ -1,0 +1,4 @@
+google-adk[eval]
+pydantic
+google-genai
+opentelemetry-instrumentation-google-genai

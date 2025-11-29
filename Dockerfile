@@ -3,15 +3,16 @@ FROM python:3.11-slim
 
 # Set the working directory in the container
 WORKDIR /app
+RUN mkdir -p /app/agent
 
 # Copy the requirements file into the container
-COPY requirements.txt .
+COPY agent/requirements.txt agent/requirements.txt
 
 # Install uv for faster dependency resolution
 RUN pip install --upgrade pip uv
 
 # Install Python dependencies using uv (much faster than pip)
-RUN uv pip install --system --no-cache -r requirements.txt
+RUN uv pip install --system --no-cache -r agent/requirements.txt
 
 # Copy the rest of the application source code into the container
 COPY . .

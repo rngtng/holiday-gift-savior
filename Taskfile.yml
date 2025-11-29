@@ -18,3 +18,7 @@ tasks:
     deps: [build]
     cmds:
       - docker run -it -p 3011:3011 -e GEMINI_API_KEY=$GEMINI_API_KEY -v .:/app holiday-gift-savior bash
+
+  deplyoy:
+    cmds:
+      - adk deploy agent_engine --project=$PROJECT_ID agent --agent_engine_config_file=agent/.agent_engine_config.json

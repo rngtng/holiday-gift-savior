@@ -1,3 +1,0 @@
-google-adk[eval]
-pydantic
-google-genai
