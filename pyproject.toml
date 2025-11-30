@@ -1,0 +1,7 @@
+[project]
+name = "holiday-gift-savior"
+version = "1.0.0"
+description = "No worries, Santa's Secret Budget Tool helps with thoughtful, budget-compliant holiday gift recommendations."
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = []

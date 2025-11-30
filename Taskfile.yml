@@ -1,0 +1,24 @@
+# https://taskfile.dev
+
+version: '3'
+
+dotenv: ['.env']
+
+tasks:
+  build:
+    cmds:
+      - docker build -t holiday-gift-savior .
+
+  run:
+    deps: [build]
+    cmds:
+      - docker run -p 8000:8000 -e GEMINI_API_KEY=$GEMINI_API_KEY holiday-gift-savior
+
+  dev:
+    deps: [build]
+    cmds:
+      - docker run -it -p 8000:8000 -e GEMINI_API_KEY=$GEMINI_API_KEY -v .:/app holiday-gift-savior bash
+
+  deploy:
+    cmds:
+      - adk deploy agent_engine --project=$PROJECT_ID agent --agent_engine_config_file=agent/.agent_engine_config.json
