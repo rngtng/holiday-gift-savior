@@ -12,12 +12,12 @@ tasks:
   run:
     deps: [build]
     cmds:
-      - docker run -p 3011:3011 -e GEMINI_API_KEY=$GEMINI_API_KEY holiday-gift-savior
+      - docker run -p 8000:8000 -e GEMINI_API_KEY=$GEMINI_API_KEY holiday-gift-savior
 
   dev:
     deps: [build]
     cmds:
-      - docker run -it -p 3011:3011 -e GEMINI_API_KEY=$GEMINI_API_KEY -v .:/app holiday-gift-savior bash
+      - docker run -it -p 8000:8000 -e GEMINI_API_KEY=$GEMINI_API_KEY -v .:/app holiday-gift-savior bash
 
   deploy:
     cmds:

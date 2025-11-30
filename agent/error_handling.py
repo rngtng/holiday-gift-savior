@@ -38,8 +38,16 @@ class GracefulErrorAgent(LlmAgent):
                 )
 
                 # Yield a text event similar to what the agent would normally produce
-                from google.adk.events import TextPart
-                yield TextPart(text=error_message)
+                from google.genai.types import Part, Content
+                from google.adk.events import Event
+
+                yield Event(
+                    content=Content(
+                        parts=[Part(text=error_message)],
+                        role="model"
+                    ),
+                    author="agent"
+                )
             else:
                 # Re-raise other ServerError types
                 logger.error(f"ServerError (non-503): {e}", exc_info=True)
@@ -54,8 +62,16 @@ class GracefulErrorAgent(LlmAgent):
                 "Please try again or contact support if the problem persists."
             )
 
-            from google.adk.events import TextPart
-            yield TextPart(text=error_message)
+            from google.genai.types import Part, Content
+            from google.adk.events import Event
+
+            yield Event(
+                content=Content(
+                    parts=[Part(text=error_message)],
+                    role="model"
+                ),
+                author="agent"
+            )
 
 
 def create_graceful_agent(agent_class=LlmAgent, **kwargs) -> GracefulErrorAgent:
