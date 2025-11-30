@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Holiday Gift Savior (HGS) is a multi-agent system built with Google's Agent Development Kit (ADK) that helps users find appropriate gifts for recipients based on persistent preferences, budgets, and constraints. The system demonstrates sequential and parallel agent orchestration, custom tools, and long-term memory management.
+Holiday Gift Savior is a multi-agent system built with Google's Agent Development Kit (ADK) that helps users find appropriate gifts for recipients based on persistent preferences, budgets, and constraints. The system demonstrates sequential and parallel agent orchestration, custom tools, and long-term memory management.
 
 ## Development Commands
 

@@ -1,4 +1,4 @@
-# Holiday Gift Savior (HGS)
+# Holiday Gift Savior
 
 No worries, Santa's Secret Budget Tool helps with thoughtful, budget-compliant holiday gift recommendations.
 
@@ -12,7 +12,7 @@ Holiday gift-giving is often hindered by two primary constraints: time and perso
 
 ### Solution: HGS - The Smart Gifting Assistant
 
-The **Holiday Gift Savior (HGS)** is a specialized multi-agent system built on Google's Agent Development Kit (ADK) and powered by Gemini. HGS converts a simple list of recipients and budgets into a curated, executable gift plan.
+The **Holiday Gift Savior** is a specialized multi-agent system built on Google's Agent Development Kit (ADK) and powered by Gemini. HGS converts a simple list of recipients and budgets into a curated, executable gift plan.
 
 The solution streamlines the process into three core automated steps:
 
